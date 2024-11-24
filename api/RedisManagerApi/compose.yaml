@@ -1,0 +1,6 @@
+﻿services:
+  redismanagerapi:
+    image: redismanagerapi
+    build:
+      context: .
+      dockerfile: RedisManagerApi/Dockerfile

@@ -9,6 +9,9 @@ import InputGroup from 'primevue/inputgroup'
 import InputGroupAddon from 'primevue/inputgroupaddon'
 import { InputText } from 'primevue'
 import Panel from 'primevue/panel'
+import Divider from 'primevue/divider'
+import 'primeicons/primeicons.css'
+
 
 const app = createApp(App)
 
@@ -23,5 +26,6 @@ app
     .component('InputGroup', InputGroup)
     .component('InputGroupAddon', InputGroupAddon)
     .component('InputText', InputText)
-    .component('Panel', Panel);
+    .component('Panel', Panel)
+    .component('Divider', Divider);
 app.mount('#app')

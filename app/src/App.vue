@@ -24,6 +24,13 @@ const connections = ref<Array<Connection>>([
   { host: 'localhost', port: 6339, password: '', user: 'localhost', name: 'teste_6' }
 ])
 
+const teste = ref<any>([])
+async function loadKeyspaces() {
+  const response = await fetch('https://localhost:7261/api/redis/keyspaces?id=04fb6731-59d0-4ef3-be5c-f8ea439c3966&host=localhost&port=6379')
+  const result = await response.json()
+
+  teste.value = result
+}
 
 </script>
 
@@ -56,24 +63,22 @@ const connections = ref<Array<Connection>>([
     </main>
 
   </Dialog>
-  <main class="bg-red-900 relative min-h-screen flex">
-    <div class="bg-purple-800 text-blue-100 w-64 p-4">
+  <main class="relative min-h-screen flex">
+    <div class="bg-[#F9FAFE] w-64 p-4 flex flex-col items-center gap-5 border-r-2 border-red-gray">
       <Button @click="visible = true">Adicionar nova conexão</Button>
-
       <section>
-        <span>Gerenciar Conexões</span>
-        <div class="card flex flex-col gap-5">
+        <div class="card flex flex-col gap-2">
           <Panel :header="`${connection.host}:${connection.port}`" v-for="(connection, index) in connections"
-            :key="index" toggleable :collapsed="true">
-            <p class="m-0">
-              pasta de cada instancia aqui
+            :key="index" toggleable :collapsed="true" @toggle="loadKeyspaces">
+            <p class="m-0" v-for="(aa, index) in teste" :key="index">
+              <i class="pi pi-folder"></i> {{ aa.name }} ({{aa.count}}) 
             </p>
           </Panel>
         </div>
       </section>
     </div>
 
-    <div class="flex-1 text-2xl p-2">
+    <div class="flex-1 p-4 text-2xl bg-[#F9FAFE]">
       main content
     </div>
   </main>
