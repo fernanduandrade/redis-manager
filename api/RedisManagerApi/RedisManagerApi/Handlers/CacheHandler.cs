@@ -39,4 +39,36 @@ public static class CacheHandler
         
         return TypedResults.BadRequest(result.Error);
     }
+    
+    internal static async Task<IResult> GetKeys(Guid id, string host, string port, string? username, string? password, string keyspace,
+        [FromServices] ICacheManagerService cacheManagerService)
+    {
+        var dto  = new RedisClientConnection(
+            id,
+            host,
+            port,
+            username,
+            password);
+        var result = await cacheManagerService.GetKeysAsync(dto, keyspace);
+        if (result.IsSuccess)
+            return TypedResults.Ok(result.Value);
+        
+        return TypedResults.BadRequest(result.Error);
+    }
+    
+    internal static async Task<IResult> GetCacheValue(Guid id, string host, string port, string? username, string? password, string cacheKey,
+        [FromServices] ICacheManagerService cacheManagerService)
+    {
+        var dto  = new RedisClientConnection(
+            id,
+            host,
+            port,
+            username,
+            password);
+        var result = await cacheManagerService.GetCacheKeyValue(dto, cacheKey);
+        if (result.IsSuccess)
+            return TypedResults.Ok(result.Value);
+        
+        return TypedResults.BadRequest(result.Error);
+    }
 }

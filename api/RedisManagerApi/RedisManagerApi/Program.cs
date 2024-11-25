@@ -23,6 +23,8 @@ app.UseHttpsRedirection();
 var redis = app.MapGroup("api/redis");
 redis.MapPost("connection", CacheHandler.CreateConnection);
 redis.MapGet("keyspaces", CacheHandler.GetConnectionKeySpaces);
+redis.MapGet("keyspaces/keys", CacheHandler.GetKeys);
+redis.MapGet("keyspaces/keys/aa", CacheHandler.GetCacheValue);
 
 app.UseStatusCodePages(async statusCodeContext
     => await Results.Problem(statusCode: statusCodeContext.HttpContext.Response.StatusCode)
