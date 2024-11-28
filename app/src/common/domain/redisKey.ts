@@ -4,6 +4,7 @@ export type RedisKey = {
     name: string
     expanded: boolean
     children?: Array<RedisKey>
+    count: number
 }
 
 export type KeyType = 'keyspace' | 'key'

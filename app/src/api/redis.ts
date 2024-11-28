@@ -1,3 +1,4 @@
+import { Connection } from '../common/domain'
 import useFetch from '../composables/useFetch'
 import { keyValueRequest } from './requests'
 
@@ -21,6 +22,17 @@ class RedisApi {
 
     async getKeysSpaces(payload: keyValueRequest) {
         const { fetchData, data } = await useFetch(`${this.baseUrl}redis/keyspaces?id=${payload.id}&host=${payload.connection.host}&port=${payload.connection.port}`)
+        await fetchData()
+        
+        return data.value
+    }
+
+    async createConnection(payload: Connection) {
+        const { fetchData, data } = await useFetch(`${this.baseUrl}redis/connections`, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
+        
         await fetchData()
         
         return data.value

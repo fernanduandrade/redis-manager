@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import redis from './api/redis'
-import { Connection } from './common/domain';
+import { Connection, RedisKey } from './common/domain';
 import { ref } from 'vue'
 import ConnectionForm from './common/components/ConnectionForm/index.vue'
-
+import Folder from './common/components/KeyFolder/index.vue'
 
 const showConnectionFormModal = ref(false)
 function closeFormEvent(evt: boolean) {
@@ -17,6 +17,28 @@ const connections = ref<Array<Connection>>([
   { host: 'localhost', port: '6339', password: '', username: 'localhost', name: 'teste_5' },
   { host: 'localhost', port: '6339', password: '', username: 'localhost', name: 'teste_6' }
 ])
+
+const teste: Array<RedisKey> = [
+    {expanded: false, id: '1', name: 'alves', type: 'keyspace', children: [], count: 0},
+    {expanded: false, id: '2', name: 'ferreira', type: 'keyspace', children: [], count: 0 },
+    {expanded: false, id: '3', name: 'joao', type: 'keyspace', children: [], count: 0},
+    {expanded: false, id: '4', name: 'truta', type: 'keyspace', children: [], count: 0},
+    {expanded: false, id: '5', name: 'sp', type: 'keyspace', children: [], count: 0},
+    {expanded: false, id: '6', name: 'goiais', type: 'keyspace', children: [
+    {expanded: false, id: '5', name: 'nando', type: 'key', children: [], count: 0},
+    ], count: 1},
+    {expanded: false, id: '7', name: 'algo - teste', type: 'keyspace', children: [
+        {expanded: false, id: '1', name: 'algo filho 1', type: 'key', children: [], count: 0},
+        {expanded: false, id: '2', name: 'algo filho 2', type: 'key', children: [], count: 0},
+        {expanded: false, id: '3', name: 'algo filho 3', type: 'key', children: [], count: 0},
+        {expanded: false, id: '4', name: 'algo filho 4', type: 'key', children: [], count: 0},
+        {expanded: false, id: '5', name: 'algo filho 5', type: 'key', children: [], count: 0},
+        {expanded: false, id: '6', name: 'algo filho 6', type: 'key', children: [], count: 0},
+    ], count: 6},
+    {expanded: false, id: '8', name: 'andrade1', type: 'keyspace', children: [], count: 0},
+    {expanded: false, id: '12', name: 'aabbcc', type: 'keyspace', children: [], count: 0},
+    {expanded: false, id: '10', name: 'teste', type: 'keyspace', children: [], count: 0},
+]
 
 const textValueExample = ref('')
 
@@ -33,7 +55,7 @@ const textValueExample = ref('')
         <div class="card flex flex-col gap-2">
           <Panel :header="`${connection.host}:${connection.port}`" v-for="(connection, index) in connections"
             :key="index" toggleable :collapsed="true">
-            
+              <Folder :items="teste" />
           </Panel>
         </div>
       </section>
