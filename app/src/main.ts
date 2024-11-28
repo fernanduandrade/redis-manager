@@ -8,8 +8,8 @@ import Dialog from 'primevue/dialog'
 import InputGroup from 'primevue/inputgroup'
 import InputGroupAddon from 'primevue/inputgroupaddon'
 import { InputText } from 'primevue'
-import Panel from 'primevue/panel'
 import Divider from 'primevue/divider'
+import AutoComplete from 'primevue/autocomplete'
 import 'primeicons/primeicons.css'
 
 
@@ -26,6 +26,6 @@ app
     .component('InputGroup', InputGroup)
     .component('InputGroupAddon', InputGroupAddon)
     .component('InputText', InputText)
-    .component('Panel', Panel)
-    .component('Divider', Divider);
+    .component('Divider', Divider)
+    .component('AutoComplete', AutoComplete);;
 app.mount('#app')
