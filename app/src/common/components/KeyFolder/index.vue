@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue';
+import { defineComponent, PropType, reactive } from 'vue';
 import { RedisKey } from '../../domain';
 import redis from '../../../api/redis';
 export default defineComponent({
@@ -11,33 +11,23 @@ export default defineComponent({
         }
     },
     setup(props) {
-        const aaa = ref(false)
+        const localItems = reactive([...props.items])
         function loadKey(key: RedisKey) {
             if(key.type === 'keyspace') {
                 console.log('caiu aqui')
                 key.expanded = !key.expanded
-                aaa.value = key.expanded && key.children!.length > 0
-                console.log('tá verdadeiro essa merda?', aaa.value)
             }
         }
         return {
-            loadKey, aaa
+            loadKey, localItems, props
         }
     }
 })
 
-
-const aa = ref(false)
-
-// function loadKeys(keyspace: string) {
-//     const result = redis.getKeysSpaces(keyspace)
-
-// }
-
 </script>
 
 <template>
-    <div class="m-0 w-full" v-for="item in items" :key="item.id">
+    <div class="m-0 w-full" v-for="item in localItems" :key="item.id">
         <span class="key" v-if="item.type === 'keyspace'" @click="loadKey(item)">
             <i :class="[item.expanded ?  'pi pi-folder-open' : 'pi pi-folder']" />
             {{ item.name }} {{ item.type === 'keyspace' ? `(${item.count})` : '' }}
@@ -45,7 +35,7 @@ const aa = ref(false)
         <span v-else class="key ml-4" @click="loadKey(item)">
             {{ item.name }}
         </span>
-        <KeyFolder class="ml-4" v-if="aaa" :items="item.children!" />
+        <KeyFolder class="ml-4" v-if="item.expanded && item.children!.length > 0" :items="item.children!" />
     </div>
 </template>
 
