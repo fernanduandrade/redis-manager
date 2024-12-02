@@ -4,5 +4,5 @@ export type Connection = {
     password: string
     username: string
     name?: string
-    open: boolean
+    open?: boolean
 }

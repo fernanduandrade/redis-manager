@@ -3,7 +3,7 @@ import redis from './api/redis'
 import { Connection, RedisKey } from './common/domain';
 import { ref } from 'vue'
 import ConnectionForm from './common/components/ConnectionForm/index.vue'
-import Folder from './common/components/KeyFolder/index.vue'
+import KeyFolder from './common/components/KeyFolder/index.vue'
 
 const showConnectionFormModal = ref(false)
 function closeFormEvent(evt: boolean) {
@@ -77,7 +77,7 @@ function openConnection(connection: Connection) {
 
             <div v-if="connection.open" class="p-5 flex flex-col gap-4">
               <AutoComplete v-model="textValueExample" placeholder="Enter para pesquisar" :suggestions="teste" />
-              <Folder :items="teste" />
+              <KeyFolder :items="teste" />
             </div>
           </div>
         </div>

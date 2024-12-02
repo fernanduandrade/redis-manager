@@ -15,7 +15,8 @@ const connection = reactive<Connection>({
     password: '',
     port: '',
     username: '',
-    name: ''
+    name: '',
+    open: false
 })
 
 const loadConnection = ref(false)
