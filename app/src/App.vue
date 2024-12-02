@@ -10,12 +10,12 @@ function closeFormEvent(evt: boolean) {
   showConnectionFormModal.value = evt
 }
 const connections = ref<Array<Connection>>([
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: 'teste_1', open: true },
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: '', open: true },
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: 'teste_3', open: true },
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: '', open: true },
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: '', open: true },
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: 'teste_6', open: true }
+  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: 'teste_1', open: false },
+  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: '', open: false },
+  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: 'teste_3', open: false },
+  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: '', open: false },
+  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: '', open: false },
+  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: 'teste_6', open: false }
 ])
 
 const teste: Array<RedisKey> = [
@@ -51,6 +51,10 @@ function connectionName(connection: Connection) {
 
   return `${connection.host}@${connection.port}`
 }
+
+function openConnection(connection: Connection) {
+  connection.open = !connection.open
+}
 </script>
 
 <template>
@@ -60,18 +64,18 @@ function connectionName(connection: Connection) {
       <Button @click="showConnectionFormModal = true">Adicionar nova conexão</Button>
       <section>
         <div class="card flex flex-col gap-2">
-          <div class="bg-red-200 flex flex-col p-4" v-for="(connection, index) in connections" :key="index">
-            <div class="flex p-4 justify-between">
+          <div class="bg-white flex flex-col p-4" v-for="(connection, index) in connections" :key="index">
+            <div class="flex p-4 justify-between cursor-pointer hover:bg-slate-300 transition-all" @click="openConnection(connection)">
               <span class="font-semibold">{{ connectionName(connection) }}</span>
-              <div class="flex gap-3">
-                <div><i class="pi pi-home" /></div>
-                <div><i class="pi pi-bars" /></div>
-                <div><i class="pi pi-chevron-down" /></div>
+              <div class="flex gap-3 items-center">
+                <div class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 z-10 cursor-pointer"><i class="pi pi-home" /></div>
+                <div class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 cursor-pointer"><i class="pi pi-bars" /></div>
+                <div :class="[connection.open ? 'rotate' : '']" ><i class="pi pi-chevron-down" /></div>
               </div>
 
             </div>
 
-            <div v-if="connection.open">
+            <div v-if="connection.open" class="p-5 flex flex-col gap-4">
               <AutoComplete v-model="textValueExample" placeholder="Enter para pesquisar" :suggestions="teste" />
               <Folder :items="teste" />
             </div>
@@ -88,3 +92,23 @@ function connectionName(connection: Connection) {
   </main>
 
 </template>
+
+<style scoped>
+.connection__action {
+  width: 30px;
+  height: 30px;
+}
+
+.rotate {
+  animation: rotation .4s forwards;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+}
+</style>
