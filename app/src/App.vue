@@ -12,31 +12,7 @@ function closeFormEvent(evt: boolean) {
 }
 const connections = ref<Array<Connection>>([])
 
-const teste: Array<RedisKey> = [
-  { expanded: false, id: '1', name: 'alves', type: 'keyspace', children: [], count: 0 },
-  { expanded: false, id: '2', name: 'ferreira', type: 'keyspace', children: [], count: 0 },
-  { expanded: false, id: '3', name: 'joao', type: 'keyspace', children: [], count: 0 },
-  { expanded: false, id: '4', name: 'truta', type: 'keyspace', children: [], count: 0 },
-  { expanded: false, id: '5', name: 'sp', type: 'keyspace', children: [], count: 0 },
-  {
-    expanded: false, id: '6', name: 'goiais', type: 'keyspace', children: [
-      { expanded: false, id: '5', name: 'nando', type: 'key', children: [], count: 0 },
-    ], count: 1
-  },
-  {
-    expanded: false, id: '7', name: 'algo - teste', type: 'keyspace', children: [
-      { expanded: false, id: '1', name: 'algo filho 1', type: 'key', children: [], count: 0 },
-      { expanded: false, id: '2', name: 'algo filho 2', type: 'key', children: [], count: 0 },
-      { expanded: false, id: '3', name: 'algo filho 3', type: 'key', children: [], count: 0 },
-      { expanded: false, id: '4', name: 'algo filho 4', type: 'key', children: [], count: 0 },
-      { expanded: false, id: '5', name: 'algo filho 5', type: 'key', children: [], count: 0 },
-      { expanded: false, id: '6', name: 'algo filho 6', type: 'key', children: [], count: 0 },
-    ], count: 6
-  },
-  { expanded: false, id: '8', name: 'andrade1', type: 'keyspace', children: [], count: 0 },
-  { expanded: false, id: '12', name: 'aabbcc', type: 'keyspace', children: [], count: 0 },
-  { expanded: false, id: '10', name: 'teste', type: 'keyspace', children: [], count: 0 },
-]
+const keyspaces = ref<Array<RedisKey>>([])
 
 const textValueExample = ref('')
 function connectionName(connection: Connection) {
@@ -46,8 +22,9 @@ function connectionName(connection: Connection) {
   return `${connection.host}@${connection.port}`
 }
 
-function openConnection(connection: Connection) {
+async function openConnection(connection: Connection) {
   connection.open = !connection.open
+  const keysSpacesResponse = await redis.getKeysSpaces(connection)
 }
 
 function updateConnection(evt: Connection) {

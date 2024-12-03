@@ -25,23 +25,7 @@ public static class CacheHandler
         return TypedResults.BadRequest(result.Error);
     }
     
-    internal static async Task<IResult> GetConnectionKeySpaces(Guid id, string host, string port, string? username, string? password,
-        [FromServices] ICacheManagerService cacheManagerService)
-    {
-        var dto  = new RedisClientConnection(
-            id,
-            host,
-            port,
-            username,
-            password);
-        var result = await cacheManagerService.GetKeySpacesConnectionAsync(dto);
-        if (result.IsSuccess)
-            return TypedResults.Ok(result.Value);
-        
-        return TypedResults.BadRequest(result.Error);
-    }
-    
-    internal static async Task<IResult> GetKeys(Guid id, string host, string port, string? username, string? password, string keyspace,
+    internal static async Task<IResult> GetKeys(Guid id, string host, string port, string? username, string? password, string? keyspace,
         [FromServices] ICacheManagerService cacheManagerService)
     {
         var dto  = new RedisClientConnection(

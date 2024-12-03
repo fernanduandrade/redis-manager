@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using RedisManagerApi.Configurations;
 using RedisManagerApi.Handlers;
 
@@ -9,6 +11,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.InjectApiBehavior();
 builder.Services.InjectInfrastructure();
 builder.Services.InjectServices();
+builder.Services.ConfigureHttpJsonOptions(x =>
+{
+    x.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 var app = builder.Build();
 
@@ -22,9 +33,8 @@ app.UseHttpsRedirection();
 
 var redis = app.MapGroup("api/redis");
 redis.MapPost("connections", CacheHandler.CreateConnection);
-redis.MapGet("keyspaces", CacheHandler.GetConnectionKeySpaces);
-redis.MapGet("keyspaces/keys", CacheHandler.GetKeys);
-redis.MapGet("keyspaces/keys/{hash}", CacheHandler.GetCacheValue);
+redis.MapGet("keyspaces", CacheHandler.GetKeys);
+redis.MapGet("keyspaces/{hash}", CacheHandler.GetCacheValue);
 
 app.UseStatusCodePages(async statusCodeContext
     => await Results.Problem(statusCode: statusCodeContext.HttpContext.Response.StatusCode)
