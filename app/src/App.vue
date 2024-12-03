@@ -24,13 +24,16 @@ function connectionName(connection: Connection) {
 
 async function openConnection(connection: Connection) {
   connection.open = !connection.open
-  const keysSpacesResponse = await redis.getKeysSpaces(connection)
+  //const keysSpacesResponse = await redis.getKeysSpaces(connection)
 }
 
 function updateConnection(evt: Connection) {
   connections.value.push(toRaw(evt))
   storageSet('userConnections', connections.value)
 }
+
+// TODO identificar a keyspace parent e repassar recursivamente
+// por tree data structure 
 
 onMounted(() => {
   connections.value = storageGet<Array<Connection>>('userConnections')
@@ -57,8 +60,8 @@ onMounted(() => {
             </div>
 
             <div v-if="connection.open" class="p-5 flex flex-col gap-4">
-              <AutoComplete v-model="textValueExample" placeholder="Enter para pesquisar" :suggestions="teste" />
-              <KeyFolder :items="teste" />
+              <!-- <AutoComplete v-model="textValueExample" placeholder="Enter para pesquisar" :suggestions="teste" />
+              <KeyFolder :items="teste" /> -->
             </div>
           </div>
         </div>
