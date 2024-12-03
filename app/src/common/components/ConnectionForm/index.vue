@@ -2,7 +2,7 @@
 import { reactive, ref } from 'vue';
 import { Connection } from '../../domain'
 import redis from '../../../api/redis'
-const emit = defineEmits(['closeForm'])
+const emit = defineEmits(['closeForm', 'updateConnection'])
 
 const props = defineProps({
   visible: {
@@ -10,23 +10,42 @@ const props = defineProps({
   }
 })
 
+const connectionErrorMessages = ref('')
+
 const connection = reactive<Connection>({
-    host: '',
-    password: '',
-    port: '',
-    username: '',
-    name: '',
-    open: false
+  host: '',
+  password: '',
+  port: '',
+  username: '',
+  name: '',
+  open: false
 })
 
 const loadConnection = ref(false)
 
 async function addConnection() {
   loadConnection.value = true
-  if(!connection.port)
+  if (!connection.port)
     connection.port = '6379'
 
+  if (!connection.host)
+    connection.host = 'localhost'
+  
   const result = await redis.createConnection(connection)
+  if (result === null) {
+    connectionErrorMessages.value = "Não foi possível realizar a conexão, porfavor verificar os parametros"
+    loadConnection.value = !loadConnection.value
+    return
+  }
+  const connectionSubmitted: Connection = {
+     host: connection.host,
+     password: connection.password,
+     port: connection.port,
+     username: connection.username,
+     name: connection.name,
+     open: false
+  }
+  emit('updateConnection', connectionSubmitted)
   hideForm()
 }
 
@@ -39,11 +58,11 @@ function hideForm() {
   connection.port = ''
   connection.name = ''
 }
-// TODO salvar no localStorage as conexões com sucesso
 </script>
 
 <template>
-    <Dialog v-model:visible="props.visible" modal header="Nova conexão" :style="{ width: '660px' }" @update:visible="hideForm">
+  <Dialog v-model:visible="props.visible" modal header="Nova conexão" :style="{ width: '660px' }"
+    @update:visible="hideForm">
     <main class="flex flex-col gap-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
@@ -74,8 +93,11 @@ function hideForm() {
 
       </div>
       <div class="flex items-center justify-end w-full">
-        <Button :loading="loadConnection" class="w-[200px]" label="Conectar" @click="addConnection"/>
+        <Button :loading="loadConnection" class="w-[200px]" label="Conectar" @click="addConnection" />
       </div>
+      <span class="text-red-600" v-if="connectionErrorMessages">
+        {{ connectionErrorMessages }}
+      </span>
 
     </main>
 

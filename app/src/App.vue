@@ -1,22 +1,16 @@
 <script setup lang="ts">
 import redis from './api/redis'
 import { Connection, RedisKey } from './common/domain';
-import { ref } from 'vue'
+import { onMounted, ref, toRaw } from 'vue'
 import ConnectionForm from './common/components/ConnectionForm/index.vue'
 import KeyFolder from './common/components/KeyFolder/index.vue'
+import { storageGet, storageSet } from './common/logic';
 
 const showConnectionFormModal = ref(false)
 function closeFormEvent(evt: boolean) {
   showConnectionFormModal.value = evt
 }
-const connections = ref<Array<Connection>>([
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: 'teste_1', open: false },
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: '', open: false },
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: 'teste_3', open: false },
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: '', open: false },
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: '', open: false },
-  { host: 'localhost', port: '6339', password: '', username: 'localhost', name: 'teste_6', open: false }
-])
+const connections = ref<Array<Connection>>([])
 
 const teste: Array<RedisKey> = [
   { expanded: false, id: '1', name: 'alves', type: 'keyspace', children: [], count: 0 },
@@ -55,10 +49,20 @@ function connectionName(connection: Connection) {
 function openConnection(connection: Connection) {
   connection.open = !connection.open
 }
+
+function updateConnection(evt: Connection) {
+  connections.value.push(toRaw(evt))
+  storageSet('userConnections', connections.value)
+}
+
+onMounted(() => {
+  connections.value = storageGet<Array<Connection>>('userConnections')
+})
+
 </script>
 
 <template>
-  <ConnectionForm :visible="showConnectionFormModal" @close-form="closeFormEvent" />
+  <ConnectionForm :visible="showConnectionFormModal" @close-form="closeFormEvent" @update-connection="updateConnection" />
   <main class="relative min-h-screen flex">
     <div class="bg-[#FFFFFF] w-[500px] p-7 flex flex-col items-center gap-5 border-r-2 border-red-gray">
       <Button @click="showConnectionFormModal = true">Adicionar nova conexão</Button>

@@ -28,13 +28,15 @@ class RedisApi {
     }
 
     async createConnection(payload: Connection) {
-        const { fetchData, data } = await useFetch(`${this.baseUrl}redis/connections`, {
+        const { fetchData, data, error } = await useFetch(`${this.baseUrl}redis/connections`, {
             method: 'POST',
             body: JSON.stringify(payload)
         })
         
         await fetchData()
-        
+        console.log(error.value)
+        if(error.value)
+            return null
         return data.value
     }
 }

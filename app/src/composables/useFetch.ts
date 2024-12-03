@@ -35,8 +35,13 @@ export default function useFetch<TResult>(url: string, options: Options = {}) {
         return
 
       const response = await fetch(url, { signal, ...options })
+      const result = await response.json()
 
-      data.value = await response.json()
+      if(!response.ok) {
+        error.value = result
+      }
+
+      data.value = result
     }
     catch (exception: any) {
       error.value = exception.message

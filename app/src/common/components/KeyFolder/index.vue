@@ -14,7 +14,6 @@ export default defineComponent({
         const localItems = reactive([...props.items])
         function loadKey(key: RedisKey) {
             if(key.type === 'keyspace') {
-                console.log('caiu aqui')
                 key.expanded = !key.expanded
             }
         }
