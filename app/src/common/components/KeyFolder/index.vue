@@ -13,7 +13,7 @@ export default defineComponent({
     setup(props) {
         const localItems = reactive([...props.items])
         function loadKey(key: RedisKey) {
-            if(key.type === 'keyspace') {
+            if(key.type === 'keySpace') {
                 key.expanded = !key.expanded
             }
         }
@@ -27,11 +27,12 @@ export default defineComponent({
 
 <template>
     <div class="m-0 w-full" v-for="item in localItems" :key="item.id">
-        <span class="key" v-if="item.type === 'keyspace'" @click="loadKey(item)">
+        <span class="key" v-if="item.type === 'keySpace'" @click="loadKey(item)">
             <i :class="[item.expanded ?  'pi pi-folder-open' : 'pi pi-folder']" />
-            {{ item.name }} {{ item.type === 'keyspace' ? `(${item.count})` : '' }}
+            {{ item.name }} {{ item.type === 'keySpace' ? `(${item.count})` : '' }}
         </span>
-        <span v-else class="key ml-4" @click="loadKey(item)">
+        <span v-else class="key" @click="loadKey(item)">
+            <i class="pi pi-key" />
             {{ item.name }}
         </span>
         <KeyFolder class="ml-4" v-if="item.expanded && item.children!.length > 0" :items="item.children!" />

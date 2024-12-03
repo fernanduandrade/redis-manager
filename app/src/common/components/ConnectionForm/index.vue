@@ -30,7 +30,7 @@ async function addConnection() {
 
   if (!connection.host)
     connection.host = 'localhost'
-  
+
   const result = await redis.createConnection(connection)
   if (result === null) {
     connectionErrorMessages.value = "Não foi possível realizar a conexão, porfavor verificar os parametros"
@@ -38,12 +38,13 @@ async function addConnection() {
     return
   }
   const connectionSubmitted: Connection = {
-     host: connection.host,
-     password: connection.password,
-     port: connection.port,
-     username: connection.username,
-     name: connection.name,
-     open: false
+    id: result,
+    host: connection.host,
+    password: connection.password,
+    port: connection.port,
+    username: connection.username,
+    name: connection.name,
+    open: false
   }
   emit('updateConnection', connectionSubmitted)
   hideForm()

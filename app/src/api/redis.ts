@@ -6,8 +6,8 @@ class RedisApi {
     
     private baseUrl = 'https://localhost:7261/api/'
 
-    async getKeysSpaces(payload: keyValueRequest) {
-        const { fetchData, data, error } = await useFetch(`${this.baseUrl}redis/keyspaces?id=${payload.id}&host=${payload.connection.host}&port=${payload.connection.port}`)
+    async getKeysSpaces(payload: any, keyspace? : string) {
+        const { fetchData, data, error } = await useFetch(`${this.baseUrl}redis/keyspaces?id=${payload.id}&host=${payload.host}&port=${payload.port}&keyspace=${keyspace}`)
         await fetchData()
         if(error.value)
             return null

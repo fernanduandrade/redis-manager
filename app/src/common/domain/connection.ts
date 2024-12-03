@@ -5,4 +5,5 @@ export type Connection = {
     username: string
     name?: string
     open?: boolean
+    id?: any
 }

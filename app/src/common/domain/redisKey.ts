@@ -7,4 +7,4 @@ export type RedisKey = {
     count: number
 }
 
-export type KeyType = 'keyspace' | 'key'
+export type KeyType = 'keySpace' | 'key'
