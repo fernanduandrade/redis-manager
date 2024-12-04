@@ -4,7 +4,11 @@ import { Connection, RedisKey } from './common/domain';
 import { onMounted, ref, toRaw } from 'vue'
 import ConnectionForm from './common/components/ConnectionForm/index.vue'
 import KeyFolder from './common/components/KeyFolder/index.vue'
-import { storageGet, storageSet } from './common/logic';
+import { storageGet, storageSet } from './common/logic'
+import { useApplication } from './common/store/index'
+
+let appStorage = useApplication()
+
 
 const showConnectionFormModal = ref(false)
 function closeFormEvent(evt: boolean) {
@@ -37,7 +41,8 @@ function updateConnection(evt: Connection) {
 }
 
 onMounted(() => {
-  connections.value = storageGet<Array<Connection>>('userConnections')
+  const connStorage = storageGet<Array<Connection>>('userConnections')
+  connections.value = connStorage.map((x: Connection) => ({...x, open: false}))
 })
 
 </script>
@@ -70,9 +75,7 @@ onMounted(() => {
     </div>
 
     <div class="flex-1 flex justify-center items-center p-4 text-2xl bg-[#F9FAFE]">
-      <p class="text-[100px] font-semibold">se liga aqui mané</p>
-      <br />
-      <p class="text-[100px] font-semibold">{{ textValueExample }}</p>
+      <p class="text-[100px] font-semibold">{{ appStorage?.cacheValue }}</p>
     </div>
   </main>
 

@@ -11,15 +11,19 @@ import { InputText } from 'primevue'
 import Divider from 'primevue/divider'
 import AutoComplete from 'primevue/autocomplete'
 import 'primeicons/primeicons.css'
+import { createPinia } from 'pinia'
 
 
+const pinia = createPinia()
 const app = createApp(App)
 
+app.use(pinia)
 app.use(PrimeVue, {
     theme: {
         preset: Aura
     }
 })
+
 app
     .component('Button', Button)
     .component('Dialog', Dialog)

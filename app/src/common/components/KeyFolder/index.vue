@@ -1,7 +1,10 @@
 <script lang="ts">
-import { defineComponent, PropType, reactive } from 'vue';
-import { RedisKey } from '../../domain';
-import redis from '../../../api/redis';
+import { defineComponent, PropType, reactive } from 'vue'
+import { RedisKey } from '../../domain'
+import redis from '../../../api/redis'
+import { useApplication } from '../../../common/store/index'
+
+
 export default defineComponent({
     name: 'KeyFolder',
     props: {
@@ -15,15 +18,21 @@ export default defineComponent({
         }
     },
     setup(props) {
+        let appStorage = useApplication()
         const localItems = reactive([...props.items])
         async function loadKey(key: RedisKey) {
             if(key.type === 'keySpace') {
                 key.expanded = !key.expanded
+                const pattern = key.parent ? `${key.parent}:${key.name}` : key.name 
+                const keysSpacesResponse = await redis.getKeysSpaces(props.connectionId,  pattern) as RedisKey[]
+                const keyspacesResult = keysSpacesResponse.map(x => ({...x, children: []}))
+                key.children = keyspacesResult
+            } else {
+                const pattern = key.parent ? `${key.parent}:${key.name}` : key.name 
+                const keysSpacesResponse = await redis.getKeyValue(props.connectionId,  pattern)
+                appStorage?.setCurrentCacheValue(keysSpacesResponse as string)
             }
-            const pattern = key.parent ? `${key.parent}:${key.name}` : key.name 
-            const keysSpacesResponse = await redis.getKeysSpaces(props.connectionId,  pattern) as RedisKey[]
-            const keyspacesResult = keysSpacesResponse.map(x => ({...x, children: []}))
-            key.children = keyspacesResult
+            
         }
         return {
             loadKey, localItems, props

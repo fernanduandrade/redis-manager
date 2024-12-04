@@ -44,10 +44,10 @@ public static class CacheHandler
         return TypedResults.BadRequest(result.Error);
     }
     
-    internal static async Task<IResult> GetCacheValue(Guid id, [FromRoute] string hash,
+    internal static async Task<IResult> GetCacheValue(Guid connectionId, [FromRoute] string hash,
         [FromServices] ICacheManagerService cacheManagerService)
     {
-        var result = await cacheManagerService.GetCacheKeyValue(id, hash);
+        var result = await cacheManagerService.GetCacheKeyValue(connectionId, hash);
         if (result.IsSuccess)
             return TypedResults.Ok(result.Value);
         

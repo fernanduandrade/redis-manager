@@ -71,10 +71,12 @@ public class CacheManagerService(CacheManager cacheManager) : ICacheManagerServi
         {
             var keyString = key.ToString()!;
             var keyValue = string.IsNullOrEmpty(keyspace) ?
-                keyString: keyString.Split(":")[1];
+                keyString : !keyspace.Contains(":")
+                    ? keyString.Split(":")[1]
+                    : keyString.Split(":")[^1];
 
-            string search = string.IsNullOrEmpty(keyspace) ? keyString : $"{keyspace}:{keyValue}";  
-            var hasChildren = server.Keys(pattern: search); 
+            string search = string.IsNullOrEmpty(keyspace) ? keyString : $"{keyspace}:{keyValue}:*";  
+            var hasChildren = server.Keys(pattern: search);
             if(hashKeys.Contains(keyString))
                 continue;
 

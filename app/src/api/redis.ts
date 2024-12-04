@@ -34,6 +34,15 @@ class RedisApi {
             return null
         return data.value
     }
+
+    async getKeyValue(connectionId: string, hash? : string) {
+        const { fetchData, data, error } = await useFetch(`${this.baseUrl}redis/keyspaces/${hash}?connectionId=${connectionId}`)
+        
+        await fetchData()
+        if(error.value)
+            return null
+        return data.value
+    }
 }
 
 export default new RedisApi()
