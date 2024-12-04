@@ -32,25 +32,31 @@ public class CacheManagerService(CacheManager cacheManager) : ICacheManagerServi
         }
     }
     
-    public async Task<Result<List<RedisKey>, Error>> GetKeysAsync(RedisClientConnection clientConnection, string keyspace)
+    public async Task OpenConnectionAsync(string connectionString, Guid id)
+    {
+        try
+        {
+            if (!cacheManager.CacheConnection.TryGetValue(id,
+                    out ConnectionMultiplexer connMult))
+            {
+                var connection = await ConnectionMultiplexer.ConnectAsync(connectionString);
+                cacheManager.CacheConnection[id] = connection;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            throw new  Exception("ConnectionFailed", ex);
+        }
+    }
+    
+    public async Task<Result<List<RedisKey>, Error>> GetKeysAsync(Guid id, string keyspace)
     {
         if (string.IsNullOrEmpty(keyspace))
-            return await GetKeys(clientConnection);
+            return await GetKeys(id);
         
-        ConnectionMultiplexer connectionMultiplexer = null;
-        
-        if (!cacheManager.CacheConnection.TryGetValue(clientConnection.Id,
-                out ConnectionMultiplexer connMult))
-        {
-            string connectionString = $"{clientConnection.Host}:{clientConnection.Port}";
-            var connection = await ConnectionMultiplexer.ConnectAsync(connectionString);
-            cacheManager.CacheConnection[clientConnection.Id] = connection;
-            connectionMultiplexer = connection;
-        }
-        else
-        {
-            connectionMultiplexer = connMult;
-        }
+        cacheManager.CacheConnection.TryGetValue(id,
+            out ConnectionMultiplexer connectionMultiplexer);
         
 
         var server = connectionMultiplexer!.GetServer(connectionMultiplexer.GetEndPoints()[0]);
@@ -81,22 +87,11 @@ public class CacheManagerService(CacheManager cacheManager) : ICacheManagerServi
         return keysList;
     }
     
-    private async Task<Result<List<RedisKey>, Error>> GetKeys(RedisClientConnection clientConnection)
+    private async Task<Result<List<RedisKey>, Error>> GetKeys(Guid id)
     {
-        ConnectionMultiplexer connectionMultiplexer = null;
+        cacheManager.CacheConnection.TryGetValue(id,
+            out ConnectionMultiplexer connectionMultiplexer);
         
-        if (!cacheManager.CacheConnection.TryGetValue(clientConnection.Id,
-                out ConnectionMultiplexer connMult))
-        {
-            string connectionString = $"{clientConnection.Host}:{clientConnection.Port}";
-            var connection = await ConnectionMultiplexer.ConnectAsync(connectionString);
-            cacheManager.CacheConnection[clientConnection.Id] = connection;
-            connectionMultiplexer = connection;
-        }
-        else
-        {
-            connectionMultiplexer = connMult;
-        }
 
         var server = connectionMultiplexer!.GetServer(connectionMultiplexer.GetEndPoints()[0]);
         var keys = server.Keys();
@@ -122,16 +117,10 @@ public class CacheManagerService(CacheManager cacheManager) : ICacheManagerServi
         return keysList;
     }
     
-    public async Task<Result<string, Error>> GetCacheKeyValue(RedisClientConnection clientConnection, string cacheKey)
+    public async Task<Result<string, Error>> GetCacheKeyValue(Guid id, string cacheKey)
     {
-        if (!cacheManager.CacheConnection.TryGetValue(clientConnection.Id,
-                out ConnectionMultiplexer connectionMultiplexer))
-        {
-            string connectionString = $"{clientConnection.Host}:{clientConnection.Port}";
-            var connection = await ConnectionMultiplexer.ConnectAsync(connectionString);
-            cacheManager.CacheConnection[clientConnection.Id] = connection;
-        }
-
+        cacheManager.CacheConnection.TryGetValue(id,
+            out ConnectionMultiplexer connectionMultiplexer);
         string value= await connectionMultiplexer.GetDatabase().StringGetAsync(cacheKey);
         return value!;
     }

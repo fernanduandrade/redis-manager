@@ -15,7 +15,6 @@ public static class CacheHandler
     internal static async Task<IResult> CreateConnection([FromBody] ConnectionRequestDto request,
         [FromServices] ICacheManagerService cacheManagerService)
     {
-        await Task.Delay(2300);
         string fullHost = $"{request.Host}:{request.Port}";
         string connection = $"{fullHost}";
         var result = await cacheManagerService.OpenConnectionAsync(connection);
@@ -25,32 +24,30 @@ public static class CacheHandler
         return TypedResults.BadRequest(result.Error);
     }
     
-    internal static async Task<IResult> GetKeys(Guid id, string host, string port, string? username, string? password, string? keyspace,
+    internal static async Task<IResult> OpenConnection(Guid connectionId, string port, string host,
         [FromServices] ICacheManagerService cacheManagerService)
     {
-        var dto  = new RedisClientConnection(
-            id,
-            host,
-            port,
-            username,
-            password);
-        var result = await cacheManagerService.GetKeysAsync(dto, keyspace);
+        string fullHost = $"{host}:{port}";
+        string connection = $"{fullHost}";
+        await cacheManagerService.OpenConnectionAsync(connection, connectionId);
+        
+        return TypedResults.NoContent();
+    }
+    
+    internal static async Task<IResult> GetKeys(Guid connectionId, string? pattern,
+        [FromServices] ICacheManagerService cacheManagerService)
+    {
+        var result = await cacheManagerService.GetKeysAsync(connectionId, pattern);
         if (result.IsSuccess)
             return TypedResults.Ok(result.Value);
         
         return TypedResults.BadRequest(result.Error);
     }
     
-    internal static async Task<IResult> GetCacheValue(Guid id, string host, string port, string? username, string? password, [FromRoute] string hash,
+    internal static async Task<IResult> GetCacheValue(Guid id, [FromRoute] string hash,
         [FromServices] ICacheManagerService cacheManagerService)
     {
-        var dto  = new RedisClientConnection(
-            id,
-            host,
-            port,
-            username,
-            password);
-        var result = await cacheManagerService.GetCacheKeyValue(dto, hash);
+        var result = await cacheManagerService.GetCacheKeyValue(id, hash);
         if (result.IsSuccess)
             return TypedResults.Ok(result.Value);
         

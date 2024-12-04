@@ -24,10 +24,11 @@ function connectionName(connection: Connection) {
 
 async function openConnection(connection: Connection) {
   connection.open = !connection.open
-  console.log(connection)
-  const keysSpacesResponse = await redis.getKeysSpaces(connection, "")
-  keyspaces.value = keysSpacesResponse as RedisKey[]
-  console.log(keysSpacesResponse)
+  await redis.openConnection(connection)
+  
+  const keysSpacesResponse = await redis.getKeysSpaces(connection.id, "") as RedisKey[]
+  const keyspacesResult = keysSpacesResponse.map(x => ({...x, children: []}))
+  keyspaces.value = keyspacesResult 
 }
 
 function updateConnection(evt: Connection) {
@@ -60,8 +61,8 @@ onMounted(() => {
             </div>
 
             <div v-if="connection.open" class="p-5 flex flex-col gap-4">
-              <!-- <AutoComplete v-model="textValueExample" placeholder="Enter para pesquisar" :suggestions="keyspaces" /> -->
-              <KeyFolder v-if="keyspaces.length > 0" :items="keyspaces" />
+              <AutoComplete v-model="textValueExample" placeholder="Enter para pesquisar" :suggestions="keyspaces" />
+              <KeyFolder v-if="keyspaces.length > 0" :connection-id="connection.id" :items="keyspaces" />
             </div>
           </div>
         </div>

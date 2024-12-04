@@ -35,6 +35,7 @@ var redis = app.MapGroup("api/redis");
 redis.MapPost("connections", CacheHandler.CreateConnection);
 redis.MapGet("keyspaces", CacheHandler.GetKeys);
 redis.MapGet("keyspaces/{hash}", CacheHandler.GetCacheValue);
+redis.MapGet("connections/open", CacheHandler.OpenConnection);
 
 app.UseStatusCodePages(async statusCodeContext
     => await Results.Problem(statusCode: statusCodeContext.HttpContext.Response.StatusCode)

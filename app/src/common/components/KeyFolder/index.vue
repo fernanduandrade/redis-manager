@@ -8,14 +8,22 @@ export default defineComponent({
         items: {
             type: Object as PropType<Array<RedisKey>>,
             required: true
+        },
+        connectionId: {
+            type: String,
+            required: true
         }
     },
     setup(props) {
         const localItems = reactive([...props.items])
-        function loadKey(key: RedisKey) {
+        async function loadKey(key: RedisKey) {
             if(key.type === 'keySpace') {
                 key.expanded = !key.expanded
             }
+            const pattern = key.parent ? `${key.parent}:${key.name}` : key.name 
+            const keysSpacesResponse = await redis.getKeysSpaces(props.connectionId,  pattern) as RedisKey[]
+            const keyspacesResult = keysSpacesResponse.map(x => ({...x, children: []}))
+            key.children = keyspacesResult
         }
         return {
             loadKey, localItems, props
@@ -35,7 +43,7 @@ export default defineComponent({
             <i class="pi pi-key" />
             {{ item.name }}
         </span>
-        <KeyFolder class="ml-4" v-if="item.expanded && item.children!.length > 0" :items="item.children!" />
+        <KeyFolder class="ml-4" v-if="item.expanded && item.children!.length > 0" :connection-id="connectionId" :items="item.children!" />
     </div>
 </template>
 
