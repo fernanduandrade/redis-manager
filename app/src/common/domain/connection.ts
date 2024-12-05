@@ -1,3 +1,5 @@
+import { RedisKey } from "./redisKey"
+
 export type Connection = {
     host: string
     port: string
@@ -6,4 +8,5 @@ export type Connection = {
     name?: string
     open?: boolean
     id?: any
+    keyspaces?: RedisKey[]
 }

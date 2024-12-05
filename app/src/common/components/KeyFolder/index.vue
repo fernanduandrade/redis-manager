@@ -21,8 +21,10 @@ export default defineComponent({
         let appStorage = useApplication()
         const localItems = reactive([...props.items])
         async function loadKey(key: RedisKey) {
+            key.expanded = !key.expanded
+            if(key.children!.length > 0)
+                return
             if(key.type === 'keySpace') {
-                key.expanded = !key.expanded
                 const pattern = key.parent ? `${key.parent}:${key.name}` : key.name 
                 const keysSpacesResponse = await redis.getKeysSpaces(props.connectionId,  pattern) as RedisKey[]
                 const keyspacesResult = keysSpacesResponse.map(x => ({...x, children: []}))
@@ -43,7 +45,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <div class="m-0 w-full" v-for="item in localItems" :key="item.id">
+    <div class="ml-8 w-full " v-for="item in localItems" :key="item.id">
         <span class="key" v-if="item.type === 'keySpace'" @click="loadKey(item)">
             <i :class="[item.expanded ?  'pi pi-folder-open' : 'pi pi-folder']" />
             {{ item.name }} {{ item.type === 'keySpace' ? `(${item.count})` : '' }}
@@ -52,13 +54,14 @@ export default defineComponent({
             <i class="pi pi-key" />
             {{ item.name }}
         </span>
-        <KeyFolder class="ml-4" v-if="item.expanded && item.children!.length > 0" :connection-id="connectionId" :items="item.children!" />
+        <KeyFolder v-if="item.expanded && item.children!.length > 0" :connection-id="connectionId" :items="item.children!" />
     </div>
 </template>
 
 <style scoped>
 
 .key {
-    @apply hover:bg-slate-300 hover:cursor-pointer
+    font-size: 25px;
+    @apply hover:bg-slate-300 hover:cursor-pointer w-fit p-1 rounded-sm block
 }
 </style>

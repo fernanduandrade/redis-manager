@@ -1,22 +1,23 @@
 <script setup lang="ts">
 import redis from './api/redis'
 import { Connection, RedisKey } from './common/domain';
-import { onMounted, ref, toRaw } from 'vue'
+import { onMounted, ref } from 'vue'
 import ConnectionForm from './common/components/ConnectionForm/index.vue'
 import KeyFolder from './common/components/KeyFolder/index.vue'
 import { storageGet, storageSet } from './common/logic'
 import { useApplication } from './common/store/index'
+import JsonViewer from './common/components/JsonViewer/index.vue'
 
-let appStorage = useApplication()
+const appStorage = useApplication()
 
 
+const viewerOptions = ref([{ name: 'json' }, { name: 'text' }])
+const selectedViewer = ref<{name: string}>()
 const showConnectionFormModal = ref(false)
 function closeFormEvent(evt: boolean) {
   showConnectionFormModal.value = evt
 }
 const connections = ref<Array<Connection>>([])
-
-const keyspaces = ref<Array<RedisKey>>([])
 
 const textValueExample = ref('')
 function connectionName(connection: Connection) {
@@ -29,53 +30,77 @@ function connectionName(connection: Connection) {
 async function openConnection(connection: Connection) {
   connection.open = !connection.open
   await redis.openConnection(connection)
-  
+
+  if (connection.keyspaces!.length > 0)
+    return
+
+
   const keysSpacesResponse = await redis.getKeysSpaces(connection.id, "") as RedisKey[]
-  const keyspacesResult = keysSpacesResponse.map(x => ({...x, children: []}))
-  keyspaces.value = keyspacesResult 
+  const keyspacesResult = keysSpacesResponse.map(x => ({ ...x, children: [] }))
+  connection.keyspaces = keyspacesResult
 }
 
 function updateConnection(evt: Connection) {
-  connections.value.push(toRaw(evt))
+  connections.value.push({ ...evt, keyspaces: [] })
   storageSet('userConnections', connections.value)
 }
 
 onMounted(() => {
   const connStorage = storageGet<Array<Connection>>('userConnections')
-  connections.value = connStorage.map((x: Connection) => ({...x, open: false}))
+  connections.value = connStorage.map((x: Connection) => ({ ...x, open: false, keyspaces: [] }))
 })
 
 </script>
 
 <template>
-  <ConnectionForm :visible="showConnectionFormModal" @close-form="closeFormEvent" @update-connection="updateConnection" />
+  <ConnectionForm :visible="showConnectionFormModal" @close-form="closeFormEvent"
+    @update-connection="updateConnection" />
   <main class="relative min-h-screen flex">
     <div class="bg-[#FFFFFF] w-[500px] p-7 flex flex-col items-center gap-5 border-r-2 border-red-gray">
       <Button @click="showConnectionFormModal = true">Adicionar nova conexão</Button>
-      <section>
+      <section class="w-full">
         <div class="card flex flex-col gap-2">
           <div class="bg-white flex flex-col p-4" v-for="(connection, index) in connections" :key="index">
-            <div class="flex p-4 justify-between cursor-pointer hover:bg-slate-300 transition-all" @click="openConnection(connection)">
+            <div class="flex p-4 justify-between cursor-pointer hover:bg-slate-300 transition-all"
+              @click="openConnection(connection)">
               <span class="font-semibold">{{ connectionName(connection) }}</span>
               <div class="flex gap-3 items-center">
-                <div class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 z-10 cursor-pointer"><i class="pi pi-home" /></div>
-                <div class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 cursor-pointer"><i class="pi pi-bars" /></div>
-                <div :class="[connection.open ? 'rotate' : '']" ><i class="pi pi-chevron-down" /></div>
+                <div
+                  class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 z-10 cursor-pointer">
+                  <i class="pi pi-home" />
+                </div>
+                <div
+                  class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 cursor-pointer">
+                  <i class="pi pi-bars" />
+                </div>
+                <div :class="[connection.open ? 'rotate' : '']"><i class="pi pi-chevron-down" /></div>
               </div>
 
             </div>
 
             <div v-if="connection.open" class="p-5 flex flex-col gap-4">
-              <AutoComplete v-model="textValueExample" placeholder="Enter para pesquisar" :suggestions="keyspaces" />
-              <KeyFolder v-if="keyspaces.length > 0" :connection-id="connection.id" :items="keyspaces" />
+              <AutoComplete v-model="textValueExample" placeholder="Enter para pesquisar"
+                :suggestions="connection.keyspaces" />
+              <KeyFolder v-if="connection.keyspaces!.length > 0" :connection-id="connection.id"
+                :items="connection.keyspaces!" />
             </div>
           </div>
         </div>
       </section>
     </div>
 
-    <div class="flex-1 flex justify-center items-center p-4 text-2xl bg-[#F9FAFE]">
-      <p class="text-[100px] font-semibold">{{ appStorage?.cacheValue }}</p>
+    <div class="flex-1 flex text-2xl bg-[#F9FAFE]">
+      <div class="flex p-5 flex-col h-full w-full bg-white shadow-md rounded-sm">
+        <div class="w-[300px]">
+          <Select variant="filled" placeholder="Tipo de visualização" class="w-full md:w-80" v-model="selectedViewer"
+            optionLabel="name" :options="viewerOptions" />
+        </div>
+        <div class="justify-center items-center">
+          <JsonViewer v-if="selectedViewer?.name === 'json'" :content="appStorage?.cacheValue!" />
+          <span v-else class="text-[20px]">{{ appStorage?.cacheValue }}</span>
+        </div>
+
+      </div>
     </div>
   </main>
 
@@ -95,6 +120,7 @@ onMounted(() => {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(180deg);
   }

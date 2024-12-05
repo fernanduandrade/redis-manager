@@ -10,6 +10,7 @@ import InputGroupAddon from 'primevue/inputgroupaddon'
 import { InputText } from 'primevue'
 import Divider from 'primevue/divider'
 import AutoComplete from 'primevue/autocomplete'
+import Select from 'primevue/select'
 import 'primeicons/primeicons.css'
 import { createPinia } from 'pinia'
 
@@ -31,5 +32,6 @@ app
     .component('InputGroupAddon', InputGroupAddon)
     .component('InputText', InputText)
     .component('Divider', Divider)
-    .component('AutoComplete', AutoComplete);;
+    .component('AutoComplete', AutoComplete)
+    .component('Select', Select);
 app.mount('#app')

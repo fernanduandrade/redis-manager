@@ -75,7 +75,7 @@ public class CacheManagerService(CacheManager cacheManager) : ICacheManagerServi
 
             string parent = $"{keyspace}";
             var type = hasChildren.Any() ? RedisKeyType.KeySpace : RedisKeyType.Key;
-            keysList.Add(new RedisKey(Guid.NewGuid(), keyValue, type, hasChildren.Count(), parent));
+            keysList.Add(new RedisKey(Guid.NewGuid(), keyValue, type, filteredKeys.Count, parent));
         }
         
         return keysList;
