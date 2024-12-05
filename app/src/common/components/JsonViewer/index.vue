@@ -21,7 +21,7 @@ function syntaxHighlight(json: string) {
         } else if (/^-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?$/.test(match)) {
             style = 'color: darkorange;';
         }
-        return `<span style="${style}">${match}</span>`;
+        return `<span style="${style} font-size: 20px">${match}</span>`;
     });
 }
 

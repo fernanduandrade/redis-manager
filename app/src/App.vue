@@ -4,7 +4,7 @@ import { Connection, RedisKey } from './common/domain';
 import { onMounted, ref } from 'vue'
 import ConnectionForm from './common/components/ConnectionForm/index.vue'
 import KeyFolder from './common/components/KeyFolder/index.vue'
-import { storageGet, storageSet } from './common/logic'
+import { memorySizeOf, storageGet, storageSet } from './common/logic'
 import { useApplication } from './common/store/index'
 import JsonViewer from './common/components/JsonViewer/index.vue'
 
@@ -12,7 +12,7 @@ const appStorage = useApplication()
 
 
 const viewerOptions = ref([{ name: 'json' }, { name: 'text' }])
-const selectedViewer = ref<{name: string}>()
+const selectedViewer = ref<{name: string}>({ name: 'text' })
 const showConnectionFormModal = ref(false)
 function closeFormEvent(evt: boolean) {
   showConnectionFormModal.value = evt
@@ -55,8 +55,8 @@ onMounted(() => {
 <template>
   <ConnectionForm :visible="showConnectionFormModal" @close-form="closeFormEvent"
     @update-connection="updateConnection" />
-  <main class="relative min-h-screen flex">
-    <div class="bg-[#FFFFFF] w-[500px] p-7 flex flex-col items-center gap-5 border-r-2 border-red-gray">
+  <Splitter class="relative min-h-screen flex">
+    <SplitterPanel :size="25" class="teste bg-[#FFFFFF] w-[500px] p-7 flex flex-col items-center gap-5 border-r-2 border-red-gray">
       <Button @click="showConnectionFormModal = true">Adicionar nova conexão</Button>
       <section class="w-full">
         <div class="card flex flex-col gap-2">
@@ -87,13 +87,16 @@ onMounted(() => {
           </div>
         </div>
       </section>
-    </div>
+    </SplitterPanel>
 
-    <div class="flex-1 flex text-2xl bg-[#F9FAFE]">
-      <div class="flex p-5 flex-col h-full w-full bg-white shadow-md rounded-sm">
-        <div class="w-[300px]">
+    <SplitterPanel :size="75" class="flex-1 flex text-2xl bg-[#F9FAFE]">
+      <div v-show="appStorage.cacheValue" class="flex p-5 flex-col h-full w-full gap-6 bg-white shadow-md rounded-sm">
+        <div class="flex gap-4 w-full items-center">
           <Select variant="filled" placeholder="Tipo de visualização" class="w-full md:w-80" v-model="selectedViewer"
             optionLabel="name" :options="viewerOptions" />
+            <div>
+              <span class="text-blue-600 font-semibold">Tamanho: {{ memorySizeOf(appStorage?.cacheValue) }}</span>
+            </div>
         </div>
         <div class="justify-center items-center">
           <JsonViewer v-if="selectedViewer?.name === 'json'" :content="appStorage?.cacheValue!" />
@@ -101,8 +104,8 @@ onMounted(() => {
         </div>
 
       </div>
-    </div>
-  </main>
+    </SplitterPanel>
+  </Splitter>
 
 </template>
 

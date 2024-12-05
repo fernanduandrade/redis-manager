@@ -13,7 +13,8 @@ import AutoComplete from 'primevue/autocomplete'
 import Select from 'primevue/select'
 import 'primeicons/primeicons.css'
 import { createPinia } from 'pinia'
-
+import Splitter from 'primevue/splitter'
+import SplitterPanel from 'primevue/splitterpanel'
 
 const pinia = createPinia()
 const app = createApp(App)
@@ -33,5 +34,7 @@ app
     .component('InputText', InputText)
     .component('Divider', Divider)
     .component('AutoComplete', AutoComplete)
-    .component('Select', Select);
+    .component('Select', Select)
+    .component('Splitter', Splitter)
+    .component('SplitterPanel', SplitterPanel);
 app.mount('#app')

@@ -61,7 +61,7 @@ export default defineComponent({
 <style scoped>
 
 .key {
-    font-size: 25px;
+    font-size: 20px;
     @apply hover:bg-slate-300 hover:cursor-pointer w-fit p-1 rounded-sm block
 }
 </style>
