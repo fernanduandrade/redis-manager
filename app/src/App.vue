@@ -73,7 +73,7 @@ onMounted(() => {
                   class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 cursor-pointer">
                   <i class="pi pi-bars" />
                 </div>
-                <div :class="[connection.open ? 'rotate' : '']"><i class="pi pi-chevron-down" /></div>
+                <div :class="[connection.open ? 'rotate' : 'rotate-invert']"><i class="pi pi-chevron-down" /></div>
               </div>
 
             </div>
@@ -113,19 +113,5 @@ onMounted(() => {
 .connection__action {
   width: 30px;
   height: 30px;
-}
-
-.rotate {
-  animation: rotation .4s forwards;
-}
-
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(180deg);
-  }
 }
 </style>
