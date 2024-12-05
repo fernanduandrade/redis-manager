@@ -57,32 +57,24 @@ public class CacheManagerService(CacheManager cacheManager) : ICacheManagerServi
         
         cacheManager.CacheConnection.TryGetValue(id,
             out ConnectionMultiplexer connectionMultiplexer);
-        
 
+        string searchPattern = $"{keyspace}:*";
         var server = connectionMultiplexer!.GetServer(connectionMultiplexer.GetEndPoints()[0]);
-        var keys = string.IsNullOrEmpty(keyspace)
-            ? server.Keys()
-            : server.Keys(pattern: $"{keyspace}:*");
-        
-        var hashKeys = new HashSet<string>();
-
+        var keysFound = server.Keys(pattern: searchPattern).ToList();
+        var filteredKeys = FilterResult(keysFound, searchPattern);
         List<RedisKey> keysList = new();
-        foreach (var key in keys)
+        foreach (var key in filteredKeys)
         {
             var keyString = key.ToString()!;
-            var keyValue = string.IsNullOrEmpty(keyspace) ?
-                keyString : !keyspace.Contains(":")
+            var keyValue = !keyspace.Contains(":")
                     ? keyString.Split(":")[1]
                     : keyString.Split(":")[^1];
 
-            string search = string.IsNullOrEmpty(keyspace) ? keyString : $"{keyspace}:{keyValue}:*";  
+            string search = $"{keyspace}:{keyValue}:*";
             var hasChildren = server.Keys(pattern: search);
-            if(hashKeys.Contains(keyString))
-                continue;
 
             string parent = $"{keyspace}";
             var type = hasChildren.Any() ? RedisKeyType.KeySpace : RedisKeyType.Key;
-            hashKeys.Add(keyValue);
             keysList.Add(new RedisKey(Guid.NewGuid(), keyValue, type, hasChildren.Count(), parent));
         }
         
@@ -125,5 +117,23 @@ public class CacheManagerService(CacheManager cacheManager) : ICacheManagerServi
             out ConnectionMultiplexer connectionMultiplexer);
         string value= await connectionMultiplexer.GetDatabase().StringGetAsync(cacheKey);
         return value!;
+    }
+
+    private List<StackExchange.Redis.RedisKey> FilterResult(List<StackExchange.Redis.RedisKey> results, string searchPattern)
+    {var basePattern = searchPattern.TrimEnd('*');
+
+        // Filter results and collect the next level keys
+        return results
+            .Where(result => result.ToString().StartsWith(basePattern))
+            .Select(result =>
+            {
+                var remaining = result.ToString().Substring(basePattern.Length);
+                var nextColonIndex = remaining.IndexOf(':');
+                return nextColonIndex != -1
+                    ? (StackExchange.Redis.RedisKey)(basePattern + remaining.Substring(0, nextColonIndex))
+                    : (StackExchange.Redis.RedisKey)(basePattern + remaining);
+            })
+            .Distinct()
+            .ToList();
     }
 }
