@@ -122,7 +122,6 @@ public class CacheManagerService(CacheManager cacheManager) : ICacheManagerServi
     private List<StackExchange.Redis.RedisKey> FilterResult(List<StackExchange.Redis.RedisKey> results, string searchPattern)
     {var basePattern = searchPattern.TrimEnd('*');
 
-        // Filter results and collect the next level keys
         return results
             .Where(result => result.ToString().StartsWith(basePattern))
             .Select(result =>
