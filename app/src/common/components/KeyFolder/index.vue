@@ -33,6 +33,7 @@ export default defineComponent({
                 const pattern = key.parent ? `${key.parent}:${key.name}` : key.name 
                 const keysSpacesResponse = await redis.getKeyValue(props.connectionId,  pattern)
                 appStorage?.setCurrentCacheValue(keysSpacesResponse as string)
+                appStorage?.setCurrentKey(pattern)
             }
             
         }

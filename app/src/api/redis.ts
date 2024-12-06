@@ -43,6 +43,17 @@ class RedisApi {
             return null
         return data.value
     }
+
+    async updateKeyValue(connectionId: string, hash: string, value: string) {
+        const { fetchData } = await useFetch(`${this.baseUrl}redis/keyspaces/${hash}?connectionId=${connectionId}`, {
+            body: JSON.stringify({
+                value: value
+            }),
+            method: 'PUT'
+        })
+        
+        await fetchData()
+    }
 }
 
 export default new RedisApi()

@@ -7,10 +7,12 @@ import KeyFolder from './common/components/KeyFolder/index.vue'
 import { memorySizeOf, storageGet, storageSet } from './common/logic'
 import { useApplication } from './common/store/index'
 import JsonViewer from './common/components/JsonViewer/index.vue'
+import { storeToRefs } from 'pinia';
 
 const appStorage = useApplication()
 
-
+const { cacheValue, currentKey } = storeToRefs(appStorage)
+const lastConnectionClicked = ref('')
 const viewerOptions = ref([{ name: 'json' }, { name: 'text' }])
 const selectedViewer = ref<{name: string}>({ name: 'text' })
 const showConnectionFormModal = ref(false)
@@ -28,6 +30,7 @@ function connectionName(connection: Connection) {
 }
 
 async function openConnection(connection: Connection) {
+  lastConnectionClicked.value = connection.id
   connection.open = !connection.open
   await redis.openConnection(connection)
 
@@ -50,6 +53,11 @@ onMounted(() => {
   connections.value = connStorage.map((x: Connection) => ({ ...x, open: false, keyspaces: [] }))
 })
 
+
+async function saveKeyValue() {
+  await redis.updateKeyValue(lastConnectionClicked.value, currentKey.value, cacheValue.value)
+}
+
 </script>
 
 <template>
@@ -65,6 +73,10 @@ onMounted(() => {
               @click="openConnection(connection)">
               <span class="font-semibold">{{ connectionName(connection) }}</span>
               <div class="flex gap-3 items-center">
+                <div
+                  class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 z-10 cursor-pointer">
+                  <i class="pi pi-plus" />
+                </div>
                 <div
                   class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 z-10 cursor-pointer">
                   <i class="pi pi-home" />
@@ -90,17 +102,21 @@ onMounted(() => {
     </SplitterPanel>
 
     <SplitterPanel :size="75" class="flex-1 flex text-2xl bg-[#F9FAFE]">
-      <div v-show="appStorage.cacheValue" class="flex p-5 flex-col h-full w-full gap-6 bg-white shadow-md rounded-sm">
+      <div v-show="cacheValue" class="flex p-5 flex-col h-full w-full gap-6 bg-white shadow-md rounded-sm">
         <div class="flex gap-4 w-full items-center">
           <Select variant="filled" placeholder="Tipo de visualização" class="w-full md:w-80" v-model="selectedViewer"
             optionLabel="name" :options="viewerOptions" />
             <div>
-              <span class="text-blue-600 font-semibold">Tamanho: {{ memorySizeOf(appStorage?.cacheValue) }}</span>
+              <span class="text-blue-600 font-semibold">Tamanho: {{ memorySizeOf(cacheValue) }}</span>
             </div>
         </div>
         <div class="justify-center items-center">
-          <JsonViewer v-if="selectedViewer?.name === 'json'" :content="appStorage?.cacheValue!" />
-          <span v-else class="text-[20px]">{{ appStorage?.cacheValue }}</span>
+          <JsonViewer v-if="selectedViewer.name === 'json'" :content="cacheValue!" />
+          <div class="flex flex-col gap-6" v-else>
+            <Textarea v-model="cacheValue" class="h-[200px]" />
+            <Button class="w-[200px] self-end" label="Salvar" @click="saveKeyValue" />
+          </div>
+          
         </div>
 
       </div>

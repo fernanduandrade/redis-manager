@@ -9,4 +9,5 @@ public interface ICacheManagerService
     Task OpenConnectionAsync(string connectionString, Guid id);
     Task<Result<List<RedisKey>, Error>> GetKeysAsync(Guid id, string keyspace);
     Task<Result<string, Error>> GetCacheKeyValue(Guid id, string cacheKey);
+    Task UpdateKeyValue(Guid id, string cacheKey, string value);
 }

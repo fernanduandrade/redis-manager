@@ -118,6 +118,15 @@ public class CacheManagerService(CacheManager cacheManager) : ICacheManagerServi
         string value= await connectionMultiplexer.GetDatabase().StringGetAsync(cacheKey);
         return value!;
     }
+    
+    public async Task UpdateKeyValue(Guid id, string cacheKey, string value)
+    {
+        cacheManager.CacheConnection.TryGetValue(id,
+            out ConnectionMultiplexer connectionMultiplexer);
+
+        var db =  connectionMultiplexer.GetDatabase();
+        await  db.StringSetAsync(cacheKey, value);
+    }
 
     private List<StackExchange.Redis.RedisKey> FilterResult(List<StackExchange.Redis.RedisKey> results, string searchPattern)
     {var basePattern = searchPattern.TrimEnd('*');

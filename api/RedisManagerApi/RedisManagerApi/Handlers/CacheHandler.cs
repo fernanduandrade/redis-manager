@@ -6,9 +6,7 @@ using RedisManagerApi.Services;
 namespace RedisManagerApi.Handlers;
 
 public sealed record ConnectionRequestDto(string Host, int Port, string UserName, string Password);
-public sealed record KeySpaceConnectionRequestDto(
-    [property: JsonPropertyName("id")] Guid identifier,
-    [property: JsonPropertyName("connection")] RedisConnection Connection);
+public sealed record UpdateKeyValueRequestDto(string Value);
 
 public static class CacheHandler
 {
@@ -52,5 +50,13 @@ public static class CacheHandler
             return TypedResults.Ok(result.Value);
         
         return TypedResults.BadRequest(result.Error);
+    }
+    
+    internal static async Task<IResult> UpdateKeyValue(Guid connectionId, [FromRoute] string hash, [FromBody] UpdateKeyValueRequestDto request,
+        [FromServices] ICacheManagerService cacheManagerService)
+    {
+        await cacheManagerService.UpdateKeyValue(connectionId, hash, request.Value);
+
+        return TypedResults.NoContent();
     }
 }
