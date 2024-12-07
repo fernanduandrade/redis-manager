@@ -7,6 +7,7 @@ namespace RedisManagerApi.Handlers;
 
 public sealed record ConnectionRequestDto(string Host, int Port, string UserName, string Password);
 public sealed record UpdateKeyValueRequestDto(string Value);
+public sealed record CreateKeyValueRequestDto(string Value, string Key);
 
 public static class CacheHandler
 {
@@ -58,5 +59,15 @@ public static class CacheHandler
         await cacheManagerService.UpdateKeyValue(connectionId, hash, request.Value);
 
         return TypedResults.NoContent();
+    }
+    
+    internal static async Task<IResult> CreateKeyValue(Guid connectionId, [FromBody] CreateKeyValueRequestDto request,
+        [FromServices] ICacheManagerService cacheManagerService)
+    {
+        var result = await cacheManagerService.CreateKeyValue(connectionId, request.Key, request.Value);
+        if (result.IsSuccess)
+            return TypedResults.Ok(result.Value);
+        
+        return TypedResults.BadRequest(result.Error);
     }
 }

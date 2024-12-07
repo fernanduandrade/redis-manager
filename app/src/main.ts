@@ -15,7 +15,6 @@ import 'primeicons/primeicons.css'
 import { createPinia } from 'pinia'
 import Splitter from 'primevue/splitter'
 import SplitterPanel from 'primevue/splitterpanel'
-import TextArea from 'primevue/textarea'
 
 const pinia = createPinia()
 const app = createApp(App)
@@ -38,5 +37,4 @@ app
     .component('Select', Select)
     .component('Splitter', Splitter)
     .component('SplitterPanel', SplitterPanel)
-    .component('TextArea', TextArea);
 app.mount('#app')

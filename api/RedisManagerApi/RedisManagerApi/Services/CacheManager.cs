@@ -127,6 +127,25 @@ public class CacheManagerService(CacheManager cacheManager) : ICacheManagerServi
         var db =  connectionMultiplexer.GetDatabase();
         await  db.StringSetAsync(cacheKey, value);
     }
+    public async Task<Result<RedisKey, Error>> CreateKeyValue(Guid id, string cacheKey, string value)
+    {
+        try
+        {
+            cacheManager.CacheConnection.TryGetValue(id,
+                out ConnectionMultiplexer connectionMultiplexer);
+
+            var db = connectionMultiplexer.GetDatabase();
+            await db.StringSetAsync(cacheKey, value);
+            var type = cacheKey.EndsWith(":") ? RedisKeyType.KeySpace : RedisKeyType.Key;
+            return new RedisKey(Guid.NewGuid(), "", type, 0, "");
+        }
+        catch (Exception ex)
+        {
+            return new Error("KeySpaceFailed", ex.Message);
+        }
+        
+    }
+    
 
     private List<StackExchange.Redis.RedisKey> FilterResult(List<StackExchange.Redis.RedisKey> results, string searchPattern)
     {var basePattern = searchPattern.TrimEnd('*');

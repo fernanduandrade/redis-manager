@@ -54,6 +54,18 @@ class RedisApi {
         
         await fetchData()
     }
+
+    async createKeyValue(connectionId: string, hash: string, value: string) {
+        const { fetchData } = await useFetch(`${this.baseUrl}redis/keyspaces?connectionId=${connectionId}`, {
+            body: JSON.stringify({
+                value: value,
+                key: hash
+            }),
+            method: 'POST'
+        })
+        
+        await fetchData()
+    }
 }
 
 export default new RedisApi()

@@ -35,6 +35,7 @@ var redis = app.MapGroup("api/redis");
 redis.MapPost("connections", CacheHandler.CreateConnection);
 redis.MapGet("keyspaces", CacheHandler.GetKeys);
 redis.MapGet("keyspaces/{hash}", CacheHandler.GetCacheValue);
+redis.MapPost("keyspaces/", CacheHandler.CreateKeyValue);
 redis.MapPut("keyspaces/{hash}", CacheHandler.UpdateKeyValue);
 redis.MapGet("connections/open", CacheHandler.OpenConnection);
 

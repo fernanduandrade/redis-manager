@@ -3,6 +3,7 @@ import redis from './api/redis'
 import { Connection, RedisKey } from './common/domain';
 import { onMounted, ref } from 'vue'
 import ConnectionForm from './common/components/ConnectionForm/index.vue'
+import AddKeyForm from './common/components/AddKeyForm/index.vue'
 import KeyFolder from './common/components/KeyFolder/index.vue'
 import { memorySizeOf, storageGet, storageSet } from './common/logic'
 import { useApplication } from './common/store/index'
@@ -16,8 +17,13 @@ const lastConnectionClicked = ref('')
 const viewerOptions = ref([{ name: 'json' }, { name: 'text' }])
 const selectedViewer = ref<{name: string}>({ name: 'text' })
 const showConnectionFormModal = ref(false)
-function closeFormEvent(evt: boolean) {
+const showAddKeyFormModal = ref(false)
+function closeConnectionForm(evt: boolean) {
   showConnectionFormModal.value = evt
+}
+
+function closeAddForm(evt: boolean) {
+  showAddKeyFormModal.value = evt
 }
 const connections = ref<Array<Connection>>([])
 
@@ -48,6 +54,7 @@ function updateConnection(evt: Connection) {
   storageSet('userConnections', connections.value)
 }
 
+
 onMounted(() => {
   const connStorage = storageGet<Array<Connection>>('userConnections')
   connections.value = connStorage.map((x: Connection) => ({ ...x, open: false, keyspaces: [] }))
@@ -61,10 +68,11 @@ async function saveKeyValue() {
 </script>
 
 <template>
-  <ConnectionForm :visible="showConnectionFormModal" @close-form="closeFormEvent"
+  <ConnectionForm :visible="showConnectionFormModal" @close-form="closeConnectionForm"
     @update-connection="updateConnection" />
+  <AddKeyForm :visible="showAddKeyFormModal" :connection-id="lastConnectionClicked" @close-form="closeAddForm" />
   <Splitter class="relative min-h-screen flex">
-    <SplitterPanel :size="25" class="teste bg-[#FFFFFF] w-[500px] p-7 flex flex-col items-center gap-5 border-r-2 border-red-gray">
+    <SplitterPanel :size="40" class="teste bg-[#FFFFFF] w-[500px] p-7 flex flex-col items-center gap-5 border-r-2 border-red-gray">
       <Button @click="showConnectionFormModal = true">Adicionar nova conexão</Button>
       <section class="w-full">
         <div class="card flex flex-col gap-2">
@@ -73,8 +81,12 @@ async function saveKeyValue() {
               @click="openConnection(connection)">
               <span class="font-semibold">{{ connectionName(connection) }}</span>
               <div class="flex gap-3 items-center">
-                <div
-                  class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 z-10 cursor-pointer">
+                <div @click.stop="openConnection(connection)"
+                  class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 z-160cursor-pointer">
+                  <i class="pi pi-refresh" />
+                </div>
+                <div @click.stop="showAddKeyFormModal  = true"
+                  class="connection__action flex items-center justify-center rounded-md hover:bg-green-200 z-160cursor-pointer">
                   <i class="pi pi-plus" />
                 </div>
                 <div
@@ -101,8 +113,8 @@ async function saveKeyValue() {
       </section>
     </SplitterPanel>
 
-    <SplitterPanel :size="75" class="flex-1 flex text-2xl bg-[#F9FAFE]">
-      <div v-show="cacheValue" class="flex p-5 flex-col h-full w-full gap-6 bg-white shadow-md rounded-sm">
+    <SplitterPanel :size="60" class="flex-1 flex text-2xl bg-[#F9FAFE]">
+      <div v-show="currentKey || cacheValue" class="flex p-5 flex-col h-full w-full gap-6 bg-white shadow-md rounded-sm">
         <div class="flex gap-4 w-full items-center">
           <Select variant="filled" placeholder="Tipo de visualização" class="w-full md:w-80" v-model="selectedViewer"
             optionLabel="name" :options="viewerOptions" />
@@ -113,7 +125,7 @@ async function saveKeyValue() {
         <div class="justify-center items-center">
           <JsonViewer v-if="selectedViewer.name === 'json'" :content="cacheValue!" />
           <div class="flex flex-col gap-6" v-else>
-            <Textarea v-model="cacheValue" class="h-[200px]" />
+            <textarea v-model="cacheValue" class="h-[200px]" />
             <Button class="w-[200px] self-end" label="Salvar" @click="saveKeyValue" />
           </div>
           
