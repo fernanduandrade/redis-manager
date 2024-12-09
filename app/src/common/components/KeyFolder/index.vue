@@ -3,7 +3,7 @@ import { defineComponent, PropType, reactive, ref } from 'vue'
 import { RedisKey } from '../../domain'
 import redis from '../../../api/redis'
 import { useApplication } from '../../../common/store/index'
-
+import ContextMenu from 'primevue/contextmenu'
 
 export default defineComponent({
     name: 'KeyFolder',
@@ -20,7 +20,7 @@ export default defineComponent({
     setup(props) {
         let appStorage = useApplication()
         const localItems = reactive([...props.items])
-        const menus = ref({})
+        const menus = ref<{ [key: string]: any }>({})
         async function loadKey(key: RedisKey) {
             key.expanded = !key.expanded
             if (key.children!.length > 0)
@@ -39,8 +39,7 @@ export default defineComponent({
         }
 
         const onKeyRightClick = (event: any, id: string) => {
-            console.log(event)
-            event.preventDefault(); // Prevent the browser's context menu
+            event.preventDefault()
             const menu = menus.value[id];
             if (menu) {
                 menu.show(event);
@@ -51,7 +50,7 @@ export default defineComponent({
             { label: 'Copy', icon: 'pi pi-copy' },
             { label: 'Rename', icon: 'pi pi-file-edit' }
         ])
-        const attachMenuRef = (el, itemId) => {
+        const attachMenuRef = (el: Element, itemId: string) => {
             if (el) {
                 menus.value[itemId] = el;
             }
@@ -82,7 +81,7 @@ export default defineComponent({
         <KeyFolder v-if="item.expanded && item.children!.length > 0" :connection-id="connectionId"
             :items="item.children!" />
             <ContextMenu
-                :ref="(el) => attachMenuRef(el, item.id)"
+                :ref="(el) => attachMenuRef(el as Element, item.id)"
                 :model="items"
             />
     </div>
