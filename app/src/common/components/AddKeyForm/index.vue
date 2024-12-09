@@ -58,11 +58,11 @@ function hideForm() {
 
                 <div class="flex flex-col gap-1">
                     <label for="value">Valor</label>
-                    <textarea class="hover:border-solid hover:border-2 hover:border-cyan-100 h-[150px]" id="value" v-model="newKey.value" placeholder="Valor" />
+                    <textarea class="bg-gray-50 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 h-[150px]" id="value" v-model="newKey.value" placeholder="Valor" />
                 </div>
             </div>
             <div class="flex items-center justify-end w-full">
-                <Button :loading="loadKey" class="w-[200px]" label="Conectar" @click="addKey" />
+                <Button :loading="loadKey" class="w-[200px]" label="Salvar" @click="addKey" />
             </div>
             <span class="text-red-600" v-if="keyErrorMessages">
                 {{ keyErrorMessages }}

@@ -4,6 +4,27 @@
 @tailwind components;
 @tailwind utilities;
 
+
+:root {
+  --background-color-primary: #ebebeb;
+  --background-color-secondary: #fafafa;
+  --accent-color: #F5F5F5;
+  --text-primary-color: #222;
+  --element-size: 6rem;
+  --text-secondary-color: #858585;
+  --divider-color: #F5F5F5;
+}
+
+/* Define styles for the root window with dark - mode preference */
+:root.dark-theme {
+  --background-color-primary: #1e1e1e;
+  --background-color-secondary: #2d2d30;
+  --accent-color: #3f3f3f;
+  --text-primary-color: #ddd;
+  --text-secondary-color: #858585;
+  --divider-color: #3e3e3e;--text-secondary-color: #858585;
+}
+
 *, *::before, *::after{
   box-sizing: border-box; 
 }

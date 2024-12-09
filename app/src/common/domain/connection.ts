@@ -9,4 +9,5 @@ export type Connection = {
     open?: boolean
     id?: any
     keyspaces?: RedisKey[]
+    openModal?: boolean
 }

@@ -1,0 +1,176 @@
+<script setup lang="ts">
+
+import { defineProps, withDefaults } from 'vue'
+import { Connection } from '../../domain';
+
+
+interface ActionModalProps {
+    connection: Connection
+    position: {
+        x: number
+        y: number
+    }
+}
+
+withDefaults(defineProps<ActionModalProps>(), {  })
+
+defineEmits<{
+    (event: 'closeModal', value: boolean): void
+    (event: 'delete'): void
+}>()
+
+
+</script>
+
+<template>
+    <main class="modal__wrapper" :style="{right: `${position.y-105}rem`}">
+        <div class="modal__intro">
+            <span :title="connection.id" class="modal__intro__title">Ações</span>
+            <div class="modal__intro__icon--close" @click="$emit('closeModal', false)">
+                <font-awesome-icon icon="fa-xmark" width="15" height="15" />
+            </div>
+        </div>
+        <Divider />
+        
+        <section class="modal__section-actions">
+            <div class="modal__section-actions action" @click="$emit('delete')">
+                <span class="modal__section-actions action__option--delete">Deletar conexão</span>
+            </div>
+        </section>
+    </main>
+</template>
+
+<style scoped lang="scss">
+
+.modal {
+    &__wrapper {
+        position: fixed;
+        width: 180px;
+        height: 282px;
+        border-radius: 1px;
+        background-color: var(--background-color-secondary);
+        backdrop-filter: initial;
+        font-family: 'Poppins', sans-serif;
+
+        box-shadow:
+            0.3px 0px 4.8px rgba(0, 0, 0, 0.055),
+            2px 0px 38px rgba(0, 0, 0, 0.11);
+
+        z-index: 99999;
+    }
+
+    &__intro {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0px 4px 0px 4px;
+        height: 30px;
+        color: var(--text-primary-color);
+
+        &__title {
+            display: block;
+            font-size: 20px;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 0 0 90%;
+        }
+
+        &__icon {
+            cursor: pointer;
+            width: 23px;
+            height: 23px;
+            
+            
+            &--close {
+                border-radius: 3px;
+                cursor: pointer;
+                font-weight: 300;
+                &:hover {
+                    background-color: var(--accent-color);
+                }
+            }     
+        }
+    }
+
+    &__section-flags {
+        display: flex;
+        justify-content: space-around;
+        flex-direction: column;
+
+        &__title {
+            padding: 7px 10px 0px 10px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary-color);
+        }
+
+        &__icons {
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            padding: 0px 10px 0px 10px;
+            flex-direction: row;
+            gap: 22px;
+            height: 40px;
+
+            &--icon {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 32px;
+                width: 32px;
+                border-radius: 3px;
+
+                &:hover {
+                    cursor: pointer;
+                    background-color: var(--accent-color);
+                }
+            }
+        }
+    }
+
+    &__section-actions {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        
+        &.action {
+            padding-top: 15px 0px 15px 0px;
+
+            &__option {
+                font-size: 8px;
+                font-weight: 700;
+                padding: 10px;
+                color: var(--text-primary-color);
+                cursor: pointer;
+                &:hover {
+                    background-color: var(--accent-color);
+                }
+
+
+                &--delete {
+                    color: red;
+                    font-size: 15px;
+                    font-weight: 700;
+                    padding: 10px;
+                    cursor: pointer;
+                    &:hover {
+                        background-color: var(--accent-color);
+                    }
+                }
+
+                &--disabled {
+                    color: var(--text-secondary-color);
+                    user-select: none;
+                    font-size: 8px;
+                    font-weight: 700;
+                    padding: 10px;
+                }
+
+            }
+        }
+    }
+}
+</style>
