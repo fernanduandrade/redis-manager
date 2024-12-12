@@ -3,7 +3,7 @@ import useFetch from '../composables/useFetch'
 
 class RedisApi {
     
-    private baseUrl = 'http://localhost:5265/api/'
+    private baseUrl = 'https://localhost:7261/api/'
 
     async getKeysSpaces(connectionId: string, keyspace? : string) {
         const { fetchData, data, error } = await useFetch(`${this.baseUrl}redis/keyspaces?connectionId=${connectionId}&pattern=${keyspace}`)
@@ -50,6 +50,14 @@ class RedisApi {
                 value: value
             }),
             method: 'PUT'
+        })
+        
+        await fetchData()
+    }
+
+    async deleteKey(connectionId: string, hash: string) {
+        const { fetchData } = await useFetch(`${this.baseUrl}redis/keyspaces/${hash}?connectionId=${connectionId}`, {
+            method: 'DELETE'
         })
         
         await fetchData()

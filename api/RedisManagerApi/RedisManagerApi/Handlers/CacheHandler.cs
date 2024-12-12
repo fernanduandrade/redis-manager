@@ -1,6 +1,4 @@
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
-using RedisManagerApi.Contracts;
 using RedisManagerApi.Services;
 
 namespace RedisManagerApi.Handlers;
@@ -69,5 +67,12 @@ public static class CacheHandler
             return TypedResults.Ok(result.Value);
         
         return TypedResults.BadRequest(result.Error);
+    }
+
+    internal static async Task<IResult> DeleteKey(Guid connectionId, [FromRoute] string hash,
+        [FromServices] ICacheManagerService cacheManagerService)
+    {
+        await cacheManagerService.DeleteKey(connectionId, hash);
+        return TypedResults.NoContent();
     }
 }

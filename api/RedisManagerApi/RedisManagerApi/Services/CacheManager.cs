@@ -163,4 +163,13 @@ public class CacheManagerService(CacheManager cacheManager) : ICacheManagerServi
             .Distinct()
             .ToList();
     }
+
+    public async Task DeleteKey(Guid id, string key)
+    {
+        cacheManager.CacheConnection.TryGetValue(id,
+        out ConnectionMultiplexer connectionMultiplexer);
+
+        var db = connectionMultiplexer.GetDatabase();
+        await db.KeyDeleteAsync(key);
+    }
 }

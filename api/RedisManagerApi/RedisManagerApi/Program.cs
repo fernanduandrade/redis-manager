@@ -38,6 +38,7 @@ redis.MapGet("keyspaces/{hash}", CacheHandler.GetCacheValue);
 redis.MapPost("keyspaces/", CacheHandler.CreateKeyValue);
 redis.MapPut("keyspaces/{hash}", CacheHandler.UpdateKeyValue);
 redis.MapGet("connections/open", CacheHandler.OpenConnection);
+redis.MapDelete("keyspaces/{hash}", CacheHandler.DeleteKey);
 
 app.UseStatusCodePages(async statusCodeContext
     => await Results.Problem(statusCode: statusCodeContext.HttpContext.Response.StatusCode)

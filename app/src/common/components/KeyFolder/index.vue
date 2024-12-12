@@ -3,7 +3,6 @@ import { defineComponent, PropType, reactive, ref } from 'vue'
 import { RedisKey } from '../../domain'
 import redis from '../../../api/redis'
 import { useApplication } from '../../../common/store/index'
-import ContextMenu from 'primevue/contextmenu'
 
 export default defineComponent({
     name: 'KeyFolder',
@@ -21,34 +20,43 @@ export default defineComponent({
         let appStorage = useApplication()
         const localItems = reactive([...props.items])
         const menus = ref<{ [key: string]: any }>({})
+        const patternKey = ref('')
+        const keyName = ref('')
         async function loadKey(key: RedisKey) {
             key.expanded = !key.expanded
             if (key.children!.length > 0)
                 return
+
+            const pattern = key.parent ? `${key.parent}:${key.name}` : key.name
             if (key.type === 'keySpace') {
-                const pattern = key.parent ? `${key.parent}:${key.name}` : key.name
                 const keysSpacesResponse = await redis.getKeysSpaces(props.connectionId, pattern) as RedisKey[]
                 const keyspacesResult = keysSpacesResponse.map(x => ({ ...x, children: [] }))
                 key.children = keyspacesResult
             } else {
-                const pattern = key.parent ? `${key.parent}:${key.name}` : key.name
+                
                 const keysSpacesResponse = await redis.getKeyValue(props.connectionId, pattern)
                 appStorage?.setCurrentCacheValue(keysSpacesResponse as string)
                 appStorage?.setCurrentKey(pattern)
             }
         }
 
-        const onKeyRightClick = (event: any, id: string) => {
+        const onKeyRightClick = (event: any, item: RedisKey) => {
             event.preventDefault()
-            const menu = menus.value[id];
+            const menu = menus.value[item.id]
+            patternKey.value = item.parent ? `${item.parent}:${item.name}` : item.name
+            keyName.value = item.name
             if (menu) {
                 menu.show(event);
             }
         }
 
         const items = ref([
-            { label: 'Copy', icon: 'pi pi-copy' },
-            { label: 'Rename', icon: 'pi pi-file-edit' }
+            { label: 'Editar', icon: 'pi pi-file-edit' },
+            { label: 'Deletar', icon: 'pi pi-times', command: async() => {
+                await redis.deleteKey(props.connectionId, patternKey.value)
+                const keyIndex = localItems.findIndex(x => x.name === keyName.value)
+                localItems.splice(keyIndex, 1)
+            }  }
         ])
         const attachMenuRef = (el: Element, itemId: string) => {
             if (el) {
@@ -72,7 +80,7 @@ export default defineComponent({
             <i :class="[item.expanded ? 'pi pi-folder-open' : 'pi pi-folder']" />
             {{ item.name }} {{ item.type === 'keySpace' ? `(${item.count})` : '' }}
         </span>
-        <span v-else class="key" @click="loadKey(item)"  aria-haspopup="true" @contextmenu="onKeyRightClick($event, item.id)">
+        <span v-else class="key" @click="loadKey(item)"  aria-haspopup="true" @contextmenu="onKeyRightClick($event, item)">
             <i class="pi pi-key" />
             {{ item.name }}
 
